@@ -1,52 +1,31 @@
-const p5 = require("node-p5");
-const opc = require("./opc");
+const w = 4880,
+  h = 1500;
+const { setupWindow } = require("./utils");
+setupWindow(w, h);
 
-// Connect to the local instance of fcserver
-var WebSocketAddress = "ws://127.0.0.1:7890";
-//Show LED pixel locations.
+const p5 = require("p5");
+var OPC = new require("./opc");
+var client = new OPC("localhost", 7890);
 
-var showPixelLocations = true;
-//Change the HTML Id of the canvas.
-var canvasId = "strip64_flames";
-let im;
-
-const sketch = (p) => {
+new p5((p) => {
+  // Declare sketch variables here
   p.setup = () => {
-    let canvas = p.createCanvas(200, 200);
-    setTimeout(() => {
-      p.saveCanvas(canvas, "myCanvas", "png").then((filename) => {
-        console.log(`saved the canvas as ${filename}`);
-      });
-    }, 100);
-    // // canvas.id(canvasId);
-    // opc.socketSetup(WebSocketAddress); // Connect to the local instance of fcserver via websocket.
-
-    // im = p.loadImage("images/flames.jpeg"); // Load a sample image
-    // opc.ledStrip(0, 64, p.width / 2, p.height / 2, p.width / 70, 0, false);
-    // //ledRing(0, 120, width/2, height/2, height/4, 0);
-    // //ledGrid8x8(0, width/2, height/2, 5, 0, true);
-    // //ledGrid(0, 15, 8, width/2, height/2, 2, 2, 0, true);
-    // p.frameRate(60);
+    p.createCanvas(w, h);
+    // setup function
+    // saveAsPNG(p, "name") // will not run draw
   };
-
   p.draw = () => {
-    p.translate(p.width / 2, p.height / 2);
-    p.drawCircle(0, 0, 200, 200);
-    // Scale the image so that it matches the width of the window
-    // var imHeight = (im.height * p.width) / im.width;
+    var millis = new Date().getTime();
 
-    // // Scroll down slowly, and wrap around
-    // var speed = 0.05;
-    // var y = (p.millis() * -speed) % imHeight;
+    for (var pixel = 0; pixel < 512; pixel++) {
+      var t = pixel * 0.2 + millis * 0.002;
+      var red = 128 + 96 * Math.sin(t);
+      var green = 128 + 96 * Math.sin(t + 0.1);
+      var blue = 128 + 96 * Math.sin(t + 0.3);
 
-    // // Use two copies of the image, so it seems to repeat infinitely
-    // p.image(im, 0, y, p.width, imHeight);
-    // p.image(im, 0, y + imHeight, p.width, imHeight);
-
-    //Send to fcServer.
-    // opc.drawFrame();
+      client.setPixel(pixel, red, green, blue);
+    }
+    client.writePixels();
+    // draw function
   };
-  // end of p5
-};
-
-let p5Instance = p5.createSketch(sketch);
+});

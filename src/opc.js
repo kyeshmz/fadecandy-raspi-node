@@ -1,167 +1,188 @@
 /*
- * Simple Open Pixel Control client for P5js,
- * designed to sample each LED's color from some point on the canvas.
+ * Simple Open Pixel Control client for Node.js
  *
- * Micah Elizabeth Scott, 2013
- * Ported to P5js by Matthew I. Kessler
+ * 2013-2014 Micah Elizabeth Scott
  * This file is released into the public domain.
  */
 
-/*
- *!!THIS SCRIPT MUST BE LOADED IN HTML BEFORE THE DRAW SCRIPT!!
- *
- *Example for HTML head:
- *<script src="libraries/opc.js" type="text/javascript"></script>
- *<script src="strip64_flames.js" type="text/javascript"></script>
+var net = require("net");
+var fs = require("fs");
+
+/********************************************************************************
+ * Core OPC Client
  */
 
-// Arrays for pixels[]'s locations to send rgb values to fcServer.
-var pixelLocationsRed = [];
-var packet = new Uint8ClampedArray(0);
+var OPC = function (host, port) {
+  this.host = host;
+  this.port = port;
+  this.pixelBuffer = null;
+};
 
-// Arrays for to map pixels on screen.
-var ledXpoints = [];
-var ledYpoints = [];
+OPC.prototype._reconnect = function () {
+  var _this = this;
 
-// Enable locations on screen.
-var enableShowLocations;
+  this.socket = new net.Socket();
+  this.connected = false;
 
-//New WebSocket.
-var socket;
-function socketSetup(WebSocketAddress) {
-  socket = new WebSocket(WebSocketAddress);
-  enableShowLocations = true;
-}
+  this.socket.onclose = function () {
+    console.log("Connection closed");
+    _this.socket = null;
+    _this.connected = false;
+  };
 
-// Set the location of a single LED.
-function led(index, x, y) {
-  loadPixels();
-  if (pixelLocationsRed === null) {
-    pixelLocationsRed.length = index + 1;
-    ledXpoints.length = index + 1;
-    ledYpoints.length = index + 1;
-  } else if (index >= pixelLocationsRed.length) {
-    pixelLocationsRed.length = index + 1;
-    ledXpoints.length = index + 1;
-    ledYpoints.length = index + 1;
-  }
-  //Store pixel[] map to color arrays.
-  var pixelD = pixelDensity();
-  var idx = pixelD * pixelD * 4 * y * width + x * pixelD * 4;
-  pixelLocationsRed[index] = idx;
-  //Store x,y to draw points for pixel locations
-  ledXpoints[index] = x;
-  ledYpoints[index] = y;
-}
-
-// Set the location of several LEDs arranged in a strip.
-// Angle is in radians, measured clockwise from +X.
-// (x,y) is the center of the strip.
-function ledStrip(index, count, x, y, spacing, angle, reversed) {
-  var s = sin(angle);
-  var c = cos(angle);
-  for (var i = 0; i < count; i++) {
-    led(
-      reversed ? (index + count - 1 - i) * 1 : (index + i) * 1,
-      //floor() These must be integers.  round() causes lag
-      floor((x + (i - (count - 1) / 2.0) * spacing * c + 0.5) * 1),
-      floor((y + (i - (count - 1) / 2.0) * spacing * s + 0.5) * 1)
-    );
-  }
-}
-
-// Set the locations of a ring of LEDs. The center of the ring is at (x, y),
-// with "radius" pixels between the center and each LED. The first LED is at
-// the indicated angle, in radians, measured clockwise from +X.
-function ledRing(index, count, x, y, radius, angle) {
-  for (var i = 0; i < count; i++) {
-    var a = angle + (i * 2 * PI) / count;
-    led(
-      index + i,
-      floor(x - radius * cos(a) + 0.5),
-      floor(y - radius * sin(a) + 0.5)
-    );
-  }
-}
-
-// Set the location of several LEDs arranged in a grid. The first strip is
-// at 'angle', measured in radians clockwise from +X.
-// (x,y) is the center of the grid.
-function ledGrid(
-  index,
-  stripLength,
-  numStrips,
-  x,
-  y,
-  ledSpacing,
-  stripSpacing,
-  angle,
-  zigzag
-) {
-  var s = sin(angle + HALF_PI);
-  var c = cos(angle + HALF_PI);
-  for (var i = 0; i < numStrips; i++) {
-    ledStrip(
-      index + stripLength * i,
-      stripLength,
-      x + (i - (numStrips - 1) / 2.0) * stripSpacing * c,
-      y + (i - (numStrips - 1) / 2.0) * stripSpacing * s,
-      ledSpacing,
-      angle,
-      zigzag && i % 2 == 1
-    );
-  }
-}
-
-// Set the location of 64 LEDs arranged in a uniform 8x8 grid.
-// (x,y) is the center of the grid.
-function ledGrid8x8(index, x, y, spacing, angle, zigzag) {
-  ledGrid(index, 8, 8, x, y, spacing, spacing, angle, zigzag);
-}
-
-//Called in function draw(){...} on last line.
-function drawFrame() {
-  if (pixelLocationsRed === null) {
-    // No pixels defined yet
-    return;
-  }
-  var leds = pixelLocationsRed.length;
-  if (packet.length != 4 + leds * 3) {
-    packet = new Uint8ClampedArray(4 + leds * 3);
-  }
-
-  if (socket.readyState != 1 /* OPEN */) {
-    // The server connection isn't open. Nothing to do.
-    return;
-  }
-
-  if (socket.bufferedAmount > packet.length) {
-    // The network is lagging, and we still haven't sent the previous frame.
-    // Don't flood the network, it will just make us laggy.
-    // If fcserver is running on the same computer, it should always be able
-    // to keep up with the frames we send, so we shouldn't reach this point.
-    return;
-  }
-
-  // Dest position in our packet. Start right after the header.
-  var dest = 4;
-  loadPixels();
-
-  // Sample and send the center pixel of each LED
-  for (var led = 0; led < leds; led++) {
-    var i = led;
-    packet[dest++] = pixels[pixelLocationsRed[i] + 0];
-    packet[dest++] = pixels[pixelLocationsRed[i] + 1];
-    packet[dest++] = pixels[pixelLocationsRed[i] + 2];
-  }
-  socket.send(packet.buffer);
-
-  //draw pixel locations on screen if enabled
-  if (showPixelLocations === true) {
-    for (i = 0; i < leds; i++) {
-      stroke(127);
-      //offset x+1 and y+1 so we don't send the dots to the fc Server
-      point(ledXpoints[i] + 1, ledYpoints[i] + 1);
+  this.socket.on("error", function (e) {
+    if (e.code == "ECONNREFUSED" || e.code == "ECONNRESET") {
+      _this.socket = null;
+      _this.connected = false;
     }
+  });
+
+  this.socket.connect(this.port, this.host, function () {
+    console.log("Connected to " + _this.socket.remoteAddress);
+    _this.connected = true;
+    _this.socket.setNoDelay();
+  });
+};
+
+OPC.prototype.writePixels = function () {
+  if (!this.socket) {
+    this._reconnect();
   }
-}
+  if (!this.connected) {
+    return;
+  }
+  this.socket.write(this.pixelBuffer);
+};
+
+OPC.prototype.setPixelCount = function (num) {
+  var length = 4 + num * 3;
+  if (this.pixelBuffer == null || this.pixelBuffer.length != length) {
+    this.pixelBuffer = new Buffer(length);
+  }
+
+  // Initialize OPC header
+  this.pixelBuffer.writeUInt8(0, 0); // Channel
+  this.pixelBuffer.writeUInt8(0, 1); // Command
+  this.pixelBuffer.writeUInt16BE(num * 3, 2); // Length
+};
+
+OPC.prototype.setPixel = function (num, r, g, b) {
+  var offset = 4 + num * 3;
+  if (this.pixelBuffer == null || offset + 3 > this.pixelBuffer.length) {
+    this.setPixelCount(num + 1);
+  }
+
+  this.pixelBuffer.writeUInt8(Math.max(0, Math.min(255, r | 0)), offset);
+  this.pixelBuffer.writeUInt8(Math.max(0, Math.min(255, g | 0)), offset + 1);
+  this.pixelBuffer.writeUInt8(Math.max(0, Math.min(255, b | 0)), offset + 2);
+};
+
+OPC.prototype.mapPixels = function (fn, model) {
+  // Set all pixels, by mapping each element of "model" through "fn" and setting the
+  // corresponding pixel value. The function returns a tuple of three 8-bit RGB values.
+  // Implies 'writePixels' as well. Has no effect if the OPC client is disconnected.
+
+  if (!this.socket) {
+    this._reconnect();
+  }
+  if (!this.connected) {
+    return;
+  }
+
+  this.setPixelCount(model.length);
+  var offset = 4;
+  var unused = [0, 0, 0]; // Color for unused channels (null model)
+
+  for (var i = 0; i < model.length; i++) {
+    var led = model[i];
+    var rgb = led ? fn(led) : unused;
+
+    this.pixelBuffer.writeUInt8(Math.max(0, Math.min(255, rgb[0] | 0)), offset);
+    this.pixelBuffer.writeUInt8(
+      Math.max(0, Math.min(255, rgb[1] | 0)),
+      offset + 1
+    );
+    this.pixelBuffer.writeUInt8(
+      Math.max(0, Math.min(255, rgb[2] | 0)),
+      offset + 2
+    );
+    offset += 3;
+  }
+
+  this.writePixels();
+};
+
+/********************************************************************************
+ * Client convenience methods
+ */
+
+OPC.prototype.mapParticles = function (particles, model) {
+  // Set all pixels, by mapping a particle system to each element of "model".
+  // The particles include parameters 'point', 'intensity', 'falloff', and 'color'.
+
+  function shader(p) {
+    var r = 0;
+    var g = 0;
+    var b = 0;
+
+    for (var i = 0; i < particles.length; i++) {
+      var particle = particles[i];
+
+      // Particle to sample distance
+      var dx = p.point[0] - particle.point[0] || 0;
+      var dy = p.point[1] - particle.point[1] || 0;
+      var dz = p.point[2] - particle.point[2] || 0;
+      var dist2 = dx * dx + dy * dy + dz * dz;
+
+      // Particle edge falloff
+      var intensity = particle.intensity / (1 + particle.falloff * dist2);
+
+      // Intensity scaling
+      r += particle.color[0] * intensity;
+      g += particle.color[1] * intensity;
+      b += particle.color[2] * intensity;
+    }
+
+    return [r, g, b];
+  }
+
+  this.mapPixels(shader, model);
+};
+
+/********************************************************************************
+ * Global convenience methods
+ */
+
+OPC.loadModel = function (filename) {
+  // Synchronously load a JSON model from a file on disk
+  return JSON.parse(fs.readFileSync(filename));
+};
+
+OPC.hsv = function (h, s, v) {
+  /*
+   * Converts an HSV color value to RGB.
+   *
+   * Normal hsv range is in [0, 1], RGB range is [0, 255].
+   * Colors may extend outside these bounds. Hue values will wrap.
+   *
+   * Based on tinycolor:
+   * https://github.com/bgrins/TinyColor/blob/master/tinycolor.js
+   * 2013-08-10, Brian Grinstead, MIT License
+   */
+
+  h = (h % 1) * 6;
+  if (h < 0) h += 6;
+
+  var i = h | 0,
+    f = h - i,
+    p = v * (1 - s),
+    q = v * (1 - f * s),
+    t = v * (1 - (1 - f) * s),
+    r = [v, q, p, p, t, v][i],
+    g = [t, v, v, q, p, p][i],
+    b = [p, p, t, v, v, q][i];
+
+  return [r * 255, g * 255, b * 255];
+};
+
+module.exports = OPC;
