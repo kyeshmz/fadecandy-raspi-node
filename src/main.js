@@ -9,6 +9,8 @@ var client = new OPC("localhost", 7890);
 
 new p5((p) => {
   // Declare sketch variables here
+  pixelNum = 512;
+
   p.setup = () => {
     p.createCanvas(w, h);
     // setup function
@@ -17,7 +19,7 @@ new p5((p) => {
   p.draw = () => {
     var millis = new Date().getTime();
 
-    for (var pixel = 0; pixel < 512; pixel++) {
+    for (var pixel = 0; pixel < pixelNum; pixel++) {
       var t = pixel * 0.2 + millis * 0.002;
       var red = 128 + 96 * Math.sin(t);
       var green = 128 + 96 * Math.sin(t + 0.1);
