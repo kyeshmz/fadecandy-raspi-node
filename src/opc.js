@@ -5,8 +5,8 @@
  * This file is released into the public domain.
  */
 
-var net = require("net");
-var fs = require("fs");
+import fs from "fs";
+import net from "net";
 
 /********************************************************************************
  * Core OPC Client
