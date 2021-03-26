@@ -5,6 +5,8 @@ setupWindow(w, h);
 
 const p5 = require("p5");
 var OPC = new require("../opc");
+import { Server } from "node-osc";
+
 var client = new OPC("localhost", 7890);
 
 var oscServer = new Server(3333, "0.0.0.0", () => {
