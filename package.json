@@ -7,7 +7,7 @@
   "author": "kkshmz <kyeshimizu@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node ./src/main.js"
+    "start": "node ./src/examples/sketch.js"
   },
   "dependencies": {
     "canvas": "^2.7.0",
