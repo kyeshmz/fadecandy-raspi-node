@@ -4,7 +4,7 @@ const { setupWindow } = require("../utils");
 setupWindow(w, h);
 
 const p5 = require("p5");
-var OPC = new require("./opc");
+var OPC = new require("../opc");
 var client = new OPC("localhost", 7890);
 
 new p5((p) => {
