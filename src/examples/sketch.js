@@ -1,13 +1,11 @@
 const w = 4880,
   h = 1500;
-const { setupWindow } = require("./utils");
+const { setupWindow } = require("../utils");
 setupWindow(w, h);
 global.setup = setup;
 const p5 = require("p5");
 var OPC = new require("./opc");
 var client = new OPC("localhost", 7890);
-
-const p5 = require("p5");
 
 new p5((p) => {
   // Declare sketch variables here
