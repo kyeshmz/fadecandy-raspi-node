@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Starting template to control fadecandy server on Raspberry Pi 4 using p5js and nodejs",
   "main": "src/main.js",
+  "type": "module",
   "repository": "https://github.com/kyeshmz/fadecandy-raspi-p5.git",
   "author": "kkshmz <kyeshimizu@gmail.com>",
   "license": "MIT",
