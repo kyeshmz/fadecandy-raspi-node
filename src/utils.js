@@ -32,4 +32,6 @@ function setupWindow(w, h) {
   global.navigator = { userAgent: "node" };
 }
 
+
+
 module.exports = { saveAsPNG, getBuffer, setupWindow };
