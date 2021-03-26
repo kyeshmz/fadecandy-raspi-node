@@ -1,6 +1,6 @@
-import p5 from "p5";
-import OPC from "../opc.js";
-import { setupWindow } from "../utils.js";
+const p5 = require("p5")
+const OPC = require("../opc.js")
+const setupWindow = require("../utils.js")
 
 const w = 4880,
   h = 1500;
@@ -8,7 +8,6 @@ const w = 4880,
 setupWindow(w, h);
 
 var client = new OPC("localhost", 7890);
-
 new p5((p) => {
   // Declare sketch variables here
   p.setup = () => {

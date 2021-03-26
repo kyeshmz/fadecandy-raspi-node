@@ -1,8 +1,12 @@
-import pkg from "canvas";
-import fs from "fs";
-import { JSDOM } from "jsdom";
-import performance from "perf_hooks";
-const { createCanvas } = pkg;
+
+const {fs} = require("fs")
+const {performance } = require("perf_hooks");
+const {JSDOM} = require("jsdom"); 
+const {createCanvas} = require("canvas");
+
+
+
+
 
 async function saveAsPNG(p5Inst, filename = "sketch") {
   const buffer = p5Inst._renderer.drawingContext.canvas.toBuffer();
@@ -13,7 +17,7 @@ function getBuffer(p5Inst) {
   return p5Inst._renderer.drawingContext.canvas.toBuffer();
 }
 
-function setupWindow(w, h) {
+const setupWindow = (w,h) =>{
   global.window = global;
 
   const dom = new JSDOM();
@@ -34,6 +38,7 @@ function setupWindow(w, h) {
   global.navigator = { userAgent: "node" };
 }
 
-export { saveAsPNG, getBuffer, setupWindow };
 
-// module.exports = { saveAsPNG, getBuffer, setupWindow };
+// export { saveAsPNG, getBuffer, setupWindow };
+
+module.exports = { saveAsPNG, getBuffer, setupWindow };
