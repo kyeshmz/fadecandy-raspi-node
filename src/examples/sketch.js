@@ -1,6 +1,6 @@
 import p5 from "p5";
-import OPC from "../opc";
-import { setupWindow } from "../utils";
+import OPC from "../opc.js";
+import { setupWindow } from "../utils.js";
 
 const w = 4880,
   h = 1500;
