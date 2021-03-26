@@ -2,5 +2,5 @@ dist
 node_modules
 yarn-error.log
 .idea
-package-lock.json
 yarn.lock
+package-lock.json
