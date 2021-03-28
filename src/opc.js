@@ -5,8 +5,9 @@
  * This file is released into the public domain.
  */
 
-import fs from "fs";
-import net from "net";
+const {fs} = require("fs")
+
+const {net} = require("net")
 
 /********************************************************************************
  * Core OPC Client
@@ -185,5 +186,4 @@ OPC.hsv = function (h, s, v) {
   return [r * 255, g * 255, b * 255];
 };
 
-export default OPC;
-// module.exports = OPC;
+module.exports = OPC;

@@ -1,6 +1,6 @@
 const p5 = require("p5")
 const OPC = require("../opc.js")
-const setupWindow = require("../utils.js")
+const {setupWindow} = require("../utils.js")
 
 const w = 4880,
   h = 1500;
