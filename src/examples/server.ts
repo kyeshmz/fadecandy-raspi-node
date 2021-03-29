@@ -11,7 +11,7 @@ const pixelNum = 1000;
 setupWindow(w, h);
 const p5 = require("p5");
 // var client = new OPC("localhost", 7890);
-const client = new OPCStream("172.24.214.182", 7890, 512);
+const client = new OPCStream("localhost", 7890, 512);
 
 const options = {
   open: {
