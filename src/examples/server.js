@@ -10,7 +10,7 @@ const pixelNum = 1000;
 
 setupWindow(w, h);
 const p5 = require("p5");
-var client = new OPC("localhost", 7890);
+// var client = new OPC("localhost", 7890);
 
 const options = {
   open: {
@@ -20,6 +20,7 @@ const options = {
 };
 const osc = new OSC({ plugin: new OSC.DatagramPlugin(options) });
 osc.open();
+console.log("server is open on " + options.open.host + " " + options.open.port);
 
 osc.on("*", (message) => {
   console.log(message.args);
@@ -33,6 +34,7 @@ osc.on("/param/density", (message, rinfo) => {
 osc.on("/scene1", (message, rinfo) => {
   console.log(message.args);
   console.log(rinfo);
+  var client = new OPC("localhost", 7890);
 
   new p5((p) => {
     // Declare sketch variables here
