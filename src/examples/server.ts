@@ -12,6 +12,7 @@ setupWindow(w, h);
 const p5 = require("p5");
 // var client = new OPC("localhost", 7890);
 const client = new OPCStream("localhost", 7890, 512);
+client.connect();
 
 const options = {
   open: {
