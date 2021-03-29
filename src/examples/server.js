@@ -11,6 +11,7 @@ const pixelNum = 1000;
 setupWindow(w, h);
 const p5 = require("p5");
 // var client = new OPC("localhost", 7890);
+const client = new OPC("172.24.214.182", 7890);
 
 const options = {
   open: {
@@ -34,7 +35,6 @@ osc.on("/param/density", (message, rinfo) => {
 osc.on("/scene1", (message, rinfo) => {
   console.log(message.args);
   console.log(rinfo);
-  var client = new OPC("localhost", 7890);
 
   new p5((p) => {
     // Declare sketch variables here
