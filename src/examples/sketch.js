@@ -1,12 +1,11 @@
 const { setupWindow } = require("../utils.js");
 
-const p5 = require("p5");
-const OPC = require("../opc2.js");
-
 const w = 4880,
   h = 1500;
 
 setupWindow(w, h);
+const p5 = require("p5");
+const OPC = require("../opcd.js");
 
 const client = new OPC("localhost", 7890);
 new p5((p) => {
