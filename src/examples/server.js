@@ -14,7 +14,7 @@ const p5 = require("p5");
 
 const options = {
   open: {
-    host: "localhost",
+    host: "172.24.214.182",
     port: 3333,
   },
 };
