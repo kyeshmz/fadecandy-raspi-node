@@ -1,6 +1,6 @@
-const { setupWindow } = require("../utils.js");
+const { setupWindow } = require("../utils");
 
-const OPC = require("../opcstream.js");
+const OPC = require("../opcstream");
 const OSC = require("osc-js");
 
 const w = 4880,
