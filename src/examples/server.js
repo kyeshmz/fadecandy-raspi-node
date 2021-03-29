@@ -13,9 +13,13 @@ setupWindow(w, h);
 const p5 = require("p5")
 var client = new OPC("localhost", 7890);
 
-
-const osc = new OSC({ plugin: new OSC.DatagramPlugin() })
-osc.open({ port: 3333 })
+const options = {
+  open: {
+    host: 'localhost',
+    port: 3333
+  }
+}
+const osc = new OSC({ plugin: new OSC.DatagramPlugin(options) })
 
 
 osc.on('*', message => {
@@ -55,6 +59,9 @@ osc.on('/scene1', (message, rinfo) => {
         };
       });
 })
+
+20 rows
+17 col
 
 const gridWidth = 200;
 const gridHeight = 200;
