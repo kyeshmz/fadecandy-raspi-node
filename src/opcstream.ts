@@ -15,7 +15,6 @@ export class OPCStream {
     this.pixelLength = pixelLength;
     this.socket = new net.Socket();
     this.connected = false;
-    this.connect();
   }
   public connect = () => {
     this.socket.connect(this.port, this.host, () => {
