@@ -19,6 +19,7 @@ const options = {
   },
 };
 const osc = new OSC({ plugin: new OSC.DatagramPlugin(options) });
+osc.open();
 
 osc.on("*", (message) => {
   console.log(message.args);
