@@ -1,12 +1,12 @@
+import { OPCStream } from "./../opcstream";
 const { setupWindow } = require("../utils");
-const OPC = require("../opc");
 const w = 4880,
   h = 1500;
 
 setupWindow(w, h);
 const p5 = require("p5");
 
-const client = new OPC("localhost", 7890);
+const client = new OPCStream("localhost", 7890, 512);
 
 new p5((p: any) => {
   // Declare sketch variables here

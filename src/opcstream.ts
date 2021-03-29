@@ -1,63 +1,59 @@
 import * as net from "net";
 
-export class OPC {
+export class OPCStream {
   public host: string;
   public port: number;
-  public pixelBuffer: Buffer | null;
-  public socket: net.Socket | null;
+  public pixelLength: number;
+  public pixelBuffer: Buffer;
+  public socket: net.Socket;
   public connected: boolean;
 
-  constructor(host: string, port: number) {
+  constructor(host: string, port: number, pixelLength: number) {
     this.host = host;
     this.port = port;
-    this.pixelBuffer = null;
-    // this.pixelBuffer = new Buffer();
-    this.socket = null;
-    this.connected = false;
-  }
-  public reconnect = () => {
-    var _this = this;
+    this.pixelBuffer = Buffer.alloc(0);
+    this.pixelLength = pixelLength;
     this.socket = new net.Socket();
     this.connected = false;
-    this.socket.on("close", () => {
-      console.log("Connection closed");
-      _this.socket = null;
-      _this.connected = false;
-    });
-
-    this.socket.on("error", (e: NodeJS.ErrnoException) => {
-      if (e.code == "ECONNREFUSED" || e.code == "ECONNRESET") {
-        _this.socket = null;
-        _this.connected = false;
-      }
-    });
-
-    this.socket.connect(this.port, this.host, function () {
-      if (_this.socket) {
-        console.log("Connected to " + _this.socket.remoteAddress);
-        _this.connected = true;
-        _this.socket.setNoDelay();
+    this.connect();
+  }
+  public connect = () => {
+    this.socket.connect(this.port, this.host, () => {
+      if (this.socket) {
+        console.log("Connected to " + this.socket.remoteAddress);
+        this.connected = true;
+        this.socket.setNoDelay();
       }
     });
   };
-  public writePixels = () => {};
-  public setPixelCount = (num: number) => {
+
+  public close = () => {
+    this.socket.on("close", () => {
+      console.log("Connection closed");
+      // this.socket = null;
+      this.connected = false;
+    });
+  };
+  public setPixelBuffer = (num: number) => {
     var length = 4 + num * 3;
     if (this.pixelBuffer == null || this.pixelBuffer.length != length) {
       this.pixelBuffer = Buffer.alloc(length);
     }
-
     // Initialize OPC header
     this.pixelBuffer.writeUInt8(0, 0); // Channel
     this.pixelBuffer.writeUInt8(0, 1); // Command
-    this.pixelBuffer.writeUInt16BE(num * 3, 2); // Length
+    this.pixelBuffer.writeUInt16BE(this.pixelLength * 3, 2); // Length
   };
+
+  public writePixels = () => {
+    this.socket.write(this.pixelBuffer);
+  };
+
   public setPixel = (num: number, r: number, g: number, b: number) => {
     var offset = 4 + num * 3;
     if (this.pixelBuffer == null || offset + 3 > this.pixelBuffer.length) {
-      this.setPixelCount(num + 1);
+      this.setPixelBuffer(num + 1);
     }
-    if (this.pixelBuffer === null) return;
 
     this.pixelBuffer.writeUInt8(Math.max(0, Math.min(255, r | 0)), offset);
     this.pixelBuffer.writeUInt8(Math.max(0, Math.min(255, g | 0)), offset + 1);
@@ -90,4 +86,3 @@ export class OPC {
     return [r * 255, g * 255, b * 255];
   };
 }
-// module.exports = OPC;
