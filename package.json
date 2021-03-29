@@ -8,7 +8,8 @@
   "author": "kkshmz <kyeshimizu@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node ./src/examples/sketch.ts"
+    "start": "ts-node ./src/examples/sketch.ts",
+    "server": "ts-node ./src/examples/server.ts"
   },
   "dependencies": {
     "canvas": "^2.7.0",
