@@ -1,15 +1,14 @@
-const { setupWindow } = require("../utils.js");
-
-const p5 = require("p5");
-const OPC = require("../opc2.js");
-
+const { setupWindow } = require("../utils");
+const OPC = require("../opc");
 const w = 4880,
   h = 1500;
 
 setupWindow(w, h);
+const p5 = require("p5");
 
 const client = new OPC("localhost", 7890);
-new p5((p) => {
+
+new p5((p: any) => {
   // Declare sketch variables here
   p.setup = () => {
     p.createCanvas(w, h);

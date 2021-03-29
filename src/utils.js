@@ -17,7 +17,7 @@ function getBuffer(p5Inst) {
   return p5Inst._renderer.drawingContext.canvas.toBuffer();
 }
 
-const setupWindow = (w,h) =>{
+function setupWindow(w,h){
   global.window = global;
 
   const dom = new JSDOM();
@@ -38,7 +38,5 @@ const setupWindow = (w,h) =>{
   global.navigator = { userAgent: "node" };
 }
 
-
-// export { saveAsPNG, getBuffer, setupWindow };
 
 module.exports = { saveAsPNG, getBuffer, setupWindow };
