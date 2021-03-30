@@ -1,15 +1,15 @@
 const { setupWindow } = require("../utils");
+const w = 4880,
+  h = 1500;
+setupWindow(w, h);
+// const p5 = require("p5");
+import p5 from "p5";
 import { OPCStream } from "./../opcstream";
 
 const OSC = require("osc-js");
 
-const w = 4880,
-  h = 1500;
-
 const pixelNum = 1000;
 
-setupWindow(w, h);
-const p5 = require("p5");
 const client = new OPCStream("localhost", 7890, 512);
 client.connect();
 
@@ -23,24 +23,9 @@ const osc = new OSC({ plugin: new OSC.DatagramPlugin(options) });
 osc.open();
 console.log("server is open on " + options.open.host + " " + options.open.port);
 
-osc.on("*", (message: any) => {
-  console.log(message.args);
-});
-
-osc.on("/param/density", (message: any, rinfo: string) => {
-  console.log(message.args);
-  console.log(rinfo);
-});
-
-osc.on("/open", (message: any) => {
-  client.connect();
-});
-osc.on("/close", (message: any) => {
-  client.close();
-});
-
 new p5((p: any) => {
   // Declare sketch variables here
+  let sceneIndex = 0;
   p.setup = () => {
     p.createCanvas(w, h);
     // setup function
@@ -60,13 +45,60 @@ new p5((p: any) => {
     client.writePixels();
     // draw function
   };
-  osc.on("/param/density", (message: any, rinfo: string) => {
+
+  osc.on("/scene1", (message: any, rinfo: string) => {
     console.log(message.args);
     console.log(rinfo);
   });
+  osc.on("/scene2", (message: any, rinfo: string) => {
+    console.log(message.args);
+    console.log(rinfo);
+  });
+  osc.on("/scene3", (message: any, rinfo: string) => {
+    console.log(message.args);
+    console.log(rinfo);
+  });
+  osc.on("/open", (message: any) => {
+    client.connect();
+  });
+  osc.on("/close", (message: any) => {
+    client.close();
+  });
 });
 
-osc.on("/scene1", (message: any, rinfo: string) => {
+osc.on("/scene2", (message, rinfo) => {
   console.log(message.args);
   console.log(rinfo);
+
+  let circleSize = 10;
+
+  new p5((p: p5) => {
+    // Declare sketch variables here
+    p.setup = () => {
+      p.createCanvas(w, h);
+      p.background(0);
+      p.fill(255);
+      circleSize = 20;
+    };
+    p.draw = () => {
+      p.background(0);
+      p.fill(255);
+      circleSize += 5;
+      p.ellipse(width / 2, height / 2, circleSize);
+
+      const widthSize = w / gridWidth;
+      const heightSize = h / gridHeight;
+
+      for (const pixel = 0; pixel < pixelNum; pixel++) {
+        for (const hblock = 0; hblock < h; gridHeight++) {
+          for (const wblock = 0; wblock < w; gridWidth++) {
+            const blockPixelColor = p.get(wblock, hblock);
+            client.setPixel(pixel, blockPixelColor.r);
+          }
+        }
+      }
+      client.writePixels();
+      // draw function
+    };
+  });
 });
