@@ -1,6 +1,6 @@
-const { setupWindow } = require("../utils.js");
+const { setupWindow } = require("../src/utils.js");
 
-const OPC = require("../opc.js");
+const OPC = require("../src/opc.js");
 const OSC = require("osc-js");
 
 const w = 4880,
@@ -39,8 +39,6 @@ new p5((p) => {
       var red = 128 + 96 * Math.sin(t);
       var green = 128 + 96 * Math.sin(t + 0.1);
       var blue = 128 + 96 * Math.sin(t + 0.3);
-      p.random();
-      p.circle();
 
       client.setPixel(pixel, red, green, blue);
     }
