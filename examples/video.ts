@@ -18,11 +18,6 @@ new p5((p: any) => {
     p.createCanvas(w, h);
     // setup function
     // saveAsPNG(p, "name") // will not run draw
-    vid = p.loadImage("wave.gif");
-    vid.size(400, 400);
-    vid.volume(0);
-    vid.loop();
-    vid.hide();
   };
   p.draw = () => {
     p.background(255);

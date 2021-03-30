@@ -1,5 +1,5 @@
 import { OPCStream } from "../src/opcstream";
-const { setupWindow } = require("../utils");
+const { setupWindow } = require("../src/utils");
 const w = 4880,
   h = 1500;
 

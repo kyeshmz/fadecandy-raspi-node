@@ -4,7 +4,7 @@ const w = 4880,
 setupWindow(w, h);
 // const p5 = require("p5");
 import p5 from "p5";
-import { OPCStream } from "./../opcstream";
+import { OPCStream } from "../src/opcstream";
 
 const OSC = require("osc-js");
 
