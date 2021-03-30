@@ -1,5 +1,5 @@
 import { OPCStream } from "../src/opcstream";
-const { setupWindow } = require("../utils");
+const { setupWindow } = require("../src/utils");
 const w = 4880,
   h = 1500;
 
@@ -18,7 +18,7 @@ new p5((p: any) => {
     p.createCanvas(w, h);
     // setup function
     // saveAsPNG(p, "name") // will not run draw
-    vid = p.createVideo("wave.mp4");
+    vid = p.loadImage("wave.gif");
     vid.size(400, 400);
     vid.volume(0);
     vid.loop();
