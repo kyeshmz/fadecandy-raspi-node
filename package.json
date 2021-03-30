@@ -9,13 +9,19 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node ./src/examples/sketch.ts",
-    "server": "ts-node ./src/examples/server.ts"
+    "server": "ts-node ./src/examples/server.ts",
+    "deploy": "pm2 start ts-node -- --type-check ./tsconfig.json ./src/examples/server.ts",
+    "pm2:install": "pm2 install pm2-slack  && pm2 set pm2-slack:slack_url SLACKURL",
+    "monitor": "pm2 monit",
+    "pm2:config": "pm2 set pm2-slack:exit true && pm2 set pm2-slack:restart true"
   },
   "dependencies": {
     "canvas": "^2.7.0",
     "jsdom": "^16.5.1",
     "osc-js": "^2.1.2",
-    "p5": "^1.3.0"
+    "p5": "^1.3.0",
+    "pm2": "^4.5.5",
+    "pm2-slack": "^1.1.0"
   },
   "devDependencies": {
     "@types/jsdom": "^16.2.9",

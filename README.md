@@ -15,6 +15,11 @@ npm install canvas
 
 Because this is intended to work as a headless alternative to p5, it needs to be run with CommonJS in mind and also the setupWindow function must be run before importing p5 or else errors will occur about no window context.
 
+### Pm2
+
+This uses pm2 slack integration
+change the SLACKURL in the pm2:install config inside of package.json
+
 ### License
 
 MIT
